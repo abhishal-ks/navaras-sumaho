@@ -1,10 +1,10 @@
 import { Tabs } from "expo-router";
 
-export default function StudentLayout() {
+export default function ParentLayout() {
   return (
     <Tabs>
       <Tabs.Screen name="index" options={{ title: "Home" }} />
-      <Tabs.Screen name="report" options={{ title: "Report" }} />
     </Tabs>
   );
 }
+

@@ -1,33 +1,20 @@
 import { View, TextInput, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { useState } from "react";
-import { api } from "../../src/services/api";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { useAuth } from "@/src/features/auth/auth-store";
+import { ErrorBox } from "@/src/ui/basic";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const { login, status } = useAuth();
+    const [error, setError] = useState<string | null>(null);
 
     const handleLogin = async () => {
+        setError(null);
         try {
-            const res = await api.post("/auth/login", {
-                email,
-                password,
-            });
-
-            const token = res.data.accessToken;
-            await AsyncStorage.setItem("token", token);
-
-            // 🔥 fetch role AFTER login
-            const me = await api.get("/auth/me");
-
-            const role = me.data.role;
-            await AsyncStorage.setItem("role", role);
-
-            // go to app
-            router.replace("/(tabs)");
+            await login({ email, password });
         } catch (err) {
-            console.log(err);
+            setError((err as any)?.message ?? "Login failed");
         }
     };
 
@@ -37,6 +24,8 @@ export default function Login() {
                 <View style={styles.card}>
                     <Text style={styles.title}>Welcome Back</Text>
                     <Text style={styles.subtitle}>Log in to continue your journey</Text>
+
+                    {error ? <ErrorBox message={error} /> : null}
 
                     <TextInput
                         placeholder="Email"
@@ -52,8 +41,14 @@ export default function Login() {
                         onChangeText={setPassword}
                     />
 
-                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Login</Text>
+                    <TouchableOpacity
+                        style={[styles.button, status === "loading" ? styles.buttonDisabled : null]}
+                        onPress={handleLogin}
+                        disabled={status === "loading"}
+                    >
+                        <Text style={styles.buttonText}>
+                            {status === "loading" ? "Logging in..." : "Login"}
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -107,6 +102,9 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: "center",
         marginTop: 6,
+    },
+    buttonDisabled: {
+        opacity: 0.7,
     },
     buttonText: {
         color: "#fff",

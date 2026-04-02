@@ -1,42 +1,41 @@
 import { useEffect } from "react";
 import { View, Text } from "react-native";
-import { Href, router } from "expo-router";
+import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "@/src/features/auth/auth-store";
 
 export default function Index() {
+    const { status, me } = useAuth();
+
     useEffect(() => {
         const check = async () => {
-            console.log('INDEX LOADED');
+            if (status === "loading") return;
 
-            const token = await AsyncStorage.getItem("token");
-console.log('TOKEN:',token);
-
-            if (!token) {
-                console.log("→ going to login");
+            if (status === "unauthenticated") {
                 router.replace("/(auth)/login");
                 return;
             }
 
-            const role = await AsyncStorage.getItem("role");
-            console.log('ROLE:', role);
+            const resolvedRole =
+                me?.role ||
+                (await AsyncStorage.getItem("role")) ||
+                "UNKNOWN";
 
-            if (role === "TEACHER") {
-                console.log("→ teacher");
+            if (resolvedRole === "TEACHER") {
                 router.replace("/(teacher)");
-            } else if (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") {
-                console.log("→ admin");
-                router.replace("/(admin)/index" as Href);
-            } else if (role === "STUDENT") {
-                console.log("→ student");
+            } else if (resolvedRole === "SUPER_ADMIN" || resolvedRole === "SCHOOL_ADMIN") {
+                router.replace("/(admin)");
+            } else if (resolvedRole === "STUDENT") {
                 router.replace("/(student)");
+            } else if (resolvedRole === "PARENT") {
+                router.replace("/(parent)");
             } else {
-                console.log("→ auth");
                 router.replace("/(auth)/login");
             }
         };
 
         check();
-    }, []);
+    }, [status, me]);
 
     return (
         <View>

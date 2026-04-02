@@ -1,13 +1,8 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
 import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
+import { useAuth } from "@/src/features/auth/auth-store";
 
 export default function Dashboard() {
-
-  const logout = async () => {
-    await AsyncStorage.removeItem("token");
-    router.replace("/(auth)/login")
-  };
+  const { logout } = useAuth();
 
   return (
     <ScrollView style={styles.container}>
