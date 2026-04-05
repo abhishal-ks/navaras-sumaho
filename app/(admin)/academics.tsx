@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { useAuth } from "@/src/features/auth/auth-store";
 import * as AcademicsApi from "@/src/api/academics";
-import { ErrorBox, Field, Info, PrimaryButton, Screen } from "@/src/ui/basic";
+import { ErrorBox, Field, Info, PrimaryButton } from "@/src/ui/basic";
+import { AppScreen } from "@/src/ui/app-screen";
+import { OptionSelector } from "@/src/ui/erp-widgets";
 
 export default function AdminAcademics() {
   const { me } = useAuth();
   const schoolId = (me && "schoolId" in me ? me.schoolId : null) as string | null;
 
   const [yearName, setYearName] = useState("");
+  const [yearMode, setYearMode] = useState<"2024-25" | "2025-26" | "2026-27" | "other">("2026-27");
   const [activateYearId, setActivateYearId] = useState("");
 
   const [className, setClassName] = useState("");
@@ -40,7 +43,7 @@ export default function AdminAcademics() {
   };
 
   return (
-    <Screen title="Academics setup">
+    <AppScreen title="Academics setup">
       {error ? <ErrorBox message={error} /> : null}
 
       <Info>
@@ -49,7 +52,20 @@ export default function AdminAcademics() {
       </Info>
 
       <Info>Academic Year</Info>
-      <Field label="Year name" value={yearName} onChangeText={setYearName} placeholder="2026-27" />
+      <OptionSelector
+        label="Year name"
+        options={[
+          { label: "2024-25", value: "2024-25" },
+          { label: "2025-26", value: "2025-26" },
+          { label: "2026-27", value: "2026-27" },
+          { label: "Other", value: "other" },
+        ]}
+        value={yearMode}
+        onSelect={setYearMode}
+      />
+      {yearMode === "other" ? (
+        <Field label="Custom year name" value={yearName} onChangeText={setYearName} placeholder="2026-27" />
+      ) : null}
       <PrimaryButton
         title="Create academic year"
         onPress={() => {
@@ -57,7 +73,11 @@ export default function AdminAcademics() {
             setError("No schoolId yet. Create a school first.");
             return;
           }
-          void run(() => AcademicsApi.createAcademicYear(schoolId, { name: yearName }));
+          void run(() =>
+            AcademicsApi.createAcademicYear(schoolId, {
+              name: yearMode === "other" ? yearName : yearMode,
+            })
+          );
         }}
         loading={loading}
       />
@@ -102,7 +122,7 @@ export default function AdminAcademics() {
         onPress={() => void run(() => AcademicsApi.assignTeacher(assignClassId, assignSubjectId, { teacherId: assignTeacherId }))}
         loading={loading}
       />
-    </Screen>
+    </AppScreen>
   );
 }
 

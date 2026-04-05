@@ -1,114 +1,141 @@
-import { View, TextInput, StyleSheet, TouchableOpacity, Text } from "react-native";
 import { useState } from "react";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/src/features/auth/auth-store";
-import { ErrorBox } from "@/src/ui/basic";
+import { AppScreen } from "@/src/ui/app-screen";
+import { ErrorBox, PrimaryButton } from "@/src/ui/basic";
+import { erp } from "@/src/theme/erp";
 
 export default function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const { login, status } = useAuth();
-    const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const { login, status } = useAuth();
+  const [error, setError] = useState<string | null>(null);
 
-    const handleLogin = async () => {
-        setError(null);
-        try {
-            await login({ email, password });
-        } catch (err) {
-            setError((err as any)?.message ?? "Login failed");
-        }
-    };
+  const handleLogin = async () => {
+    setError(null);
+    try {
+      await login({ email, password });
+    } catch (err) {
+      setError((err as Error)?.message ?? "Login failed");
+    }
+  };
 
-    return (
-        <>
-            <View style={styles.container}>
-                <View style={styles.card}>
-                    <Text style={styles.title}>Welcome Back</Text>
-                    <Text style={styles.subtitle}>Log in to continue your journey</Text>
+  return (
+    <AppScreen
+      scroll
+      contentContainerStyle={styles.scrollCenter}
+      keyboardVerticalOffset={64}
+    >
+      <View style={styles.card}>
+        <Text style={styles.brand}>Navaras</Text>
+        <Text style={styles.title}>Welcome back</Text>
+        <Text style={styles.subtitle}>Sign in to continue</Text>
 
-                    {error ? <ErrorBox message={error} /> : null}
+        {error ? <ErrorBox message={error} /> : null}
 
-                    <TextInput
-                        placeholder="Email"
-                        placeholderTextColor="#9a8c98"
-                        style={styles.input}
-                        onChangeText={setEmail}
-                    />
-                    <TextInput
-                        placeholder="Password"
-                        placeholderTextColor="#9a8c98"
-                        secureTextEntry
-                        style={styles.input}
-                        onChangeText={setPassword}
-                    />
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          value={email}
+          onChangeText={setEmail}
+          placeholder="you@school.com"
+          placeholderTextColor={erp.colors.textMuted}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+          style={styles.input}
+        />
 
-                    <TouchableOpacity
-                        style={[styles.button, status === "loading" ? styles.buttonDisabled : null]}
-                        onPress={handleLogin}
-                        disabled={status === "loading"}
-                    >
-                        <Text style={styles.buttonText}>
-                            {status === "loading" ? "Logging in..." : "Login"}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        </>
-    );
+        <Text style={styles.label}>Password</Text>
+        <View style={styles.passwordRow}>
+          <TextInput
+            value={password}
+            onChangeText={setPassword}
+            placeholder="••••••••"
+            placeholderTextColor={erp.colors.textMuted}
+            secureTextEntry={!showPassword}
+            style={[styles.input, styles.inputFlex]}
+          />
+          <Pressable
+            onPress={() => setShowPassword((s) => !s)}
+            style={styles.eyeBtn}
+            accessibilityLabel={showPassword ? "Hide password" : "Show password"}
+          >
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={22}
+              color={erp.colors.textSecondary}
+            />
+          </Pressable>
+        </View>
+
+        <PrimaryButton
+          title={status === "loading" ? "Signing in…" : "Sign in"}
+          onPress={handleLogin}
+          disabled={status === "loading"}
+          loading={status === "loading"}
+        />
+      </View>
+    </AppScreen>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#fff8f0",
-        padding: 20,
-    },
-    card: {
-        width: "100%",
-        maxWidth: 320,
-        backgroundColor: "#fef6e4",
-        borderRadius: 16,
-        padding: 20,
-        shadowColor: "#000",
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 5 },
-        elevation: 6,
-    },
-    title: {
-        fontSize: 22,
-        color: "#5f4b32",
-        fontWeight: "600",
-        marginBottom: 4,
-    },
-    subtitle: {
-        fontSize: 13,
-        color: "#a68a64",
-        marginBottom: 18,
-    },
-    input: {
-        backgroundColor: "#fff",
-        borderRadius: 10,
-        padding: 12,
-        marginBottom: 14,
-        color: "#5f4b32",
-        borderWidth: 1,
-        borderColor: "#e6ccb2",
-    },
-    button: {
-        backgroundColor: "#e07a5f",
-        paddingVertical: 12,
-        borderRadius: 10,
-        alignItems: "center",
-        marginTop: 6,
-    },
-    buttonDisabled: {
-        opacity: 0.7,
-    },
-    buttonText: {
-        color: "#fff",
-        fontWeight: "600",
-        fontSize: 15,
-    },
+  scrollCenter: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingVertical: erp.space.xxl,
+  },
+  card: {
+    backgroundColor: erp.colors.surface,
+    borderRadius: erp.radii.xl,
+    borderWidth: 1,
+    borderColor: erp.colors.border,
+    padding: erp.space.xl,
+  },
+  brand: {
+    color: erp.colors.accent,
+    fontWeight: "800",
+    fontSize: 13,
+    letterSpacing: 1,
+    marginBottom: erp.space.sm,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: erp.colors.textPrimary,
+  },
+  subtitle: {
+    marginTop: 4,
+    marginBottom: erp.space.lg,
+    color: erp.colors.textSecondary,
+    fontSize: 14,
+  },
+  label: {
+    color: erp.colors.textSecondary,
+    fontWeight: "600",
+    marginBottom: 6,
+    fontSize: 13,
+  },
+  input: {
+    backgroundColor: erp.colors.bgElevated,
+    borderWidth: 1,
+    borderColor: erp.colors.border,
+    borderRadius: erp.radii.md,
+    paddingHorizontal: erp.space.md,
+    paddingVertical: 12,
+    color: erp.colors.textPrimary,
+    marginBottom: erp.space.md,
+  },
+  passwordRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: erp.space.md,
+  },
+  inputFlex: { flex: 1, marginBottom: 0, marginRight: erp.space.sm },
+  eyeBtn: {
+    padding: erp.space.sm,
+    marginBottom: erp.space.md,
+  },
 });

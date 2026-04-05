@@ -23,3 +23,19 @@ export async function addTeacher(
   return res.data;
 }
 
+export async function addParent(
+  schoolId: string,
+  params: { name: string; email: string; password: string }
+) {
+  const res = await api.post(`/schools/${schoolId}/parents`, params);
+  return res.data;
+}
+
+export async function createParentLink(
+  schoolId: string,
+  params: { studentId: string; parentUserId?: string; parentEmail?: string }
+) {
+  const res = await api.post(`/schools/${schoolId}/parent-links`, params);
+  return res.data;
+}
+

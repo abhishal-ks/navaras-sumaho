@@ -1,17 +1,14 @@
-import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import { useAuth } from "@/src/features/auth/auth-store";
+import { AppScreen } from "@/src/ui/app-screen";
+import { PrimaryButton } from "@/src/ui/basic";
+import { erp } from "@/src/theme/erp";
 
 export default function Dashboard() {
   const { logout } = useAuth();
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Welcome back Ryty 👋</Text>
-
-      <Button
-        title="Logout" onPress={logout}
-      />
-
+    <AppScreen title="Welcome back Ryty 👋">
       <View style={styles.card}>
         <Text style={styles.cardTitle}>System Status</Text>
         <Text style={styles.cardValue}>All systems running</Text>
@@ -33,60 +30,47 @@ export default function Dashboard() {
         <Text style={styles.cardTitle}>Focus Time</Text>
         <Text style={styles.cardValue}>2h 30m</Text>
       </View>
-    </ScrollView>
+
+      <PrimaryButton title="Logout" onPress={logout} />
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f8fafc", // light tech background
-    padding: 20,
-  },
-
-  header: {
-    fontSize: 26,
-    color: "#0f172a",
-    fontWeight: "600",
-    marginBottom: 20,
-  },
-
   card: {
-    backgroundColor: "#ffffff",
+    backgroundColor: erp.colors.surface,
     padding: 18,
-    borderRadius: 18,
-    marginBottom: 16,
-    shadowColor: "#0f172a",
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    borderRadius: erp.radii.lg,
+    marginBottom: erp.space.md,
+    borderWidth: 1,
+    borderColor: erp.colors.border,
   },
 
   cardRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    gap: erp.space.md,
   },
 
   smallCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: erp.colors.surface,
     padding: 18,
-    borderRadius: 18,
+    borderRadius: erp.radii.lg,
     width: "48%",
-    marginBottom: 16,
-    shadowColor: "#0f172a",
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    marginBottom: erp.space.md,
+    borderWidth: 1,
+    borderColor: erp.colors.border,
   },
 
   cardTitle: {
-    color: "#64748b", // soft muted gray
+    color: erp.colors.textMuted,
     fontSize: 14,
-    marginBottom: 8,
+    marginBottom: erp.space.sm,
+    fontWeight: "500",
   },
 
   cardValue: {
-    color: "#f59e0b", // warm cozy amber
+    color: erp.colors.accent,
     fontSize: 20,
     fontWeight: "600",
   },

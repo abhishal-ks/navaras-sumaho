@@ -4,6 +4,7 @@ import { useAuth } from "@/src/features/auth/auth-store";
 import * as SchoolsApi from "@/src/api/schools";
 import { ErrorBox, Info, PrimaryButton, Screen } from "@/src/ui/basic";
 import { ControlledField } from "@/src/ui/rhf";
+import { ScrollView } from "react-native";
 
 export default function AdminSchools() {
   const { me, refreshMe } = useAuth();
@@ -63,6 +64,7 @@ export default function AdminSchools() {
 
   return (
     <Screen title="School setup">
+      <ScrollView contentContainerStyle={{padding:20}}>
       {error ? <ErrorBox message={error} /> : null}
 
       <Info>
@@ -87,6 +89,7 @@ export default function AdminSchools() {
         secureTextEntry
       />
       <PrimaryButton title="Add teacher" onPress={addTeacher} loading={loading} />
+      </ScrollView>
     </Screen>
   );
 }

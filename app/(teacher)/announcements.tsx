@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as AnnouncementsApi from "@/src/api/announcements";
-import { ErrorBox, Field, Info, PrimaryButton, Screen } from "@/src/ui/basic";
+import { ErrorBox, Field, Info, PrimaryButton } from "@/src/ui/basic";
+import { AppScreen } from "@/src/ui/app-screen";
+import { OptionSelector } from "@/src/ui/erp-widgets";
 
 export default function TeacherAnnouncements() {
   const listQuery = useQuery({
@@ -39,17 +41,20 @@ export default function TeacherAnnouncements() {
   };
 
   return (
-    <Screen title="Announcements">
+    <AppScreen title="Announcements">
       {error ? <ErrorBox message={error} /> : null}
 
       <Info>Create</Info>
       <Field label="Title" value={title} onChangeText={setTitle} placeholder="School assembly timing" />
       <Field label="Message" value={message} onChangeText={setMessage} placeholder="Message…" />
-      <Field
-        label="Audience type (school/class)"
+      <OptionSelector
+        label="Audience"
+        options={[
+          { label: "School", value: "school" },
+          { label: "Class", value: "class" },
+        ]}
         value={audienceType}
-        onChangeText={(v) => setAudienceType(v === "class" ? "class" : "school")}
-        placeholder="school"
+        onSelect={setAudienceType}
       />
       {audienceType === "class" ? (
         <Field label="Class ID" value={classId} onChangeText={setClassId} placeholder="paste class _id" />
@@ -58,7 +63,7 @@ export default function TeacherAnnouncements() {
 
       <Info>My announcements</Info>
       <PrimaryButton title="Refresh" onPress={() => void listQuery.refetch()} loading={listQuery.isFetching} />
-      {listQuery.isLoading ? <Info>Loading…</Info> : null}
+      {listQuery.isLoading ? <Info loading>Loading announcements…</Info> : null}
       {listQuery.isError ? <ErrorBox message={(listQuery.error as any)?.message ?? "Failed to load"} /> : null}
       {listQuery.data ? (
         <Info>
@@ -67,6 +72,6 @@ export default function TeacherAnnouncements() {
             : "No announcements"}
         </Info>
       ) : null}
-    </Screen>
+    </AppScreen>
   );
 }

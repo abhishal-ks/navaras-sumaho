@@ -1,9 +1,8 @@
 import { api } from "@/src/services/api";
 
 export type AuthMe =
-  | { role: "SCHOOL_ADMIN" | "TEACHER"; schoolId: string }
-  | { role: "STUDENT"; classId: string }
-  | { role: "PARENT" }
+  | { role: "SCHOOL_ADMIN" | "TEACHER" | "PARENT"; schoolId: string }
+  | { role: "STUDENT"; classId: string; studentId?: string }
   | { role: "UNKNOWN" };
 
 export async function login(params: { email: string; password: string }) {
