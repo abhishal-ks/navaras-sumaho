@@ -5,6 +5,7 @@ import * as SchoolsApi from "@/src/api/schools";
 import { ErrorBox, Info, PrimaryButton, Screen } from "@/src/ui/basic";
 import { ControlledField } from "@/src/ui/rhf";
 import { ScrollView } from "react-native";
+import { AppScreen } from "@/src/ui/app-screen";
 
 export default function AdminSchools() {
   const { me, refreshMe } = useAuth();
@@ -63,34 +64,34 @@ export default function AdminSchools() {
   };
 
   return (
-    <Screen title="School setup">
-      <ScrollView contentContainerStyle={{padding:20}}>
-      {error ? <ErrorBox message={error} /> : null}
+    <AppScreen title="School setup">
+      <ScrollView contentContainerStyle={{ padding: 20 }}>
+        {error ? <ErrorBox message={error} /> : null}
 
-      <Info>
-        Current schoolId: {schoolId ?? "(none)"}{"\n"}
-        Last created schoolId: {createdSchool?._id ?? "(none)"}{"\n"}
-        Last added teacher userId: {addedTeacher?.userId ?? "(none)"}
-      </Info>
+        <Info>
+          Current schoolId: {schoolId ?? "(none)"}{"\n"}
+          Last created schoolId: {createdSchool?._id ?? "(none)"}{"\n"}
+          Last added teacher userId: {addedTeacher?.userId ?? "(none)"}
+        </Info>
 
-      <ControlledField control={schoolForm.control} name="name" label="School name" placeholder="Navaras Public School" />
-      <ControlledField control={schoolForm.control} name="board" label="Board" placeholder="CBSE" />
-      <ControlledField control={schoolForm.control} name="address" label="Address" placeholder="Street, City" />
-      <PrimaryButton title="Create school" onPress={createSchool} loading={loading} />
+        <ControlledField control={schoolForm.control} name="name" label="School name" placeholder="Navaras Public School" />
+        <ControlledField control={schoolForm.control} name="board" label="Board" placeholder="CBSE" />
+        <ControlledField control={schoolForm.control} name="address" label="Address" placeholder="Street, City" />
+        <PrimaryButton title="Create school" onPress={createSchool} loading={loading} />
 
-      <Info>{"Add teacher (creates a user + TEACHER membership)"}</Info>
-      <ControlledField control={teacherForm.control} name="name" label="Teacher name" placeholder="Jane Doe" />
-      <ControlledField control={teacherForm.control} name="email" label="Teacher email" placeholder="jane@school.com" />
-      <ControlledField
-        control={teacherForm.control}
-        name="password"
-        label="Teacher password"
-        placeholder="min 6 chars"
-        secureTextEntry
-      />
-      <PrimaryButton title="Add teacher" onPress={addTeacher} loading={loading} />
+        <Info>{"Add teacher (creates a user + TEACHER membership)"}</Info>
+        <ControlledField control={teacherForm.control} name="name" label="Teacher name" placeholder="Jane Doe" />
+        <ControlledField control={teacherForm.control} name="email" label="Teacher email" placeholder="jane@school.com" />
+        <ControlledField
+          control={teacherForm.control}
+          name="password"
+          label="Teacher password"
+          placeholder="min 6 chars"
+          secureTextEntry
+        />
+        <PrimaryButton title="Add teacher" onPress={addTeacher} loading={loading} />
       </ScrollView>
-    </Screen>
+    </AppScreen>
   );
 }
 

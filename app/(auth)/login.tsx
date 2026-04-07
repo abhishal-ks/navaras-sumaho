@@ -29,7 +29,7 @@ export default function Login() {
       keyboardVerticalOffset={64}
     >
       <View style={styles.card}>
-        <Text style={styles.brand}>Navaras</Text>
+        <Text style={styles.brand}>Navarasa</Text>
         <Text style={styles.title}>Welcome back</Text>
         <Text style={styles.subtitle}>Sign in to continue</Text>
 

@@ -1,77 +1,82 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
+import { router } from "expo-router";
 import { useAuth } from "@/src/features/auth/auth-store";
 import { AppScreen } from "@/src/ui/app-screen";
 import { PrimaryButton } from "@/src/ui/basic";
+import { StatCard } from "@/components/ui/stat-card";
+import { ActionCard } from "@/components/ui/action-card";
 import { erp } from "@/src/theme/erp";
 
 export default function Dashboard() {
   const { logout } = useAuth();
 
+  const userName = 'User';
+
   return (
-    <AppScreen title="Welcome back Ryty 👋">
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>System Status</Text>
-        <Text style={styles.cardValue}>All systems running</Text>
-      </View>
-
-      <View style={styles.cardRow}>
-        <View style={styles.smallCard}>
-          <Text style={styles.cardTitle}>Tasks</Text>
-          <Text style={styles.cardValue}>12</Text>
+    <AppScreen title={`Welcome back ${userName} 👋`} subtitle="Here's your overview">
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Stats Row */}
+        <View style={styles.statsRow}>
+          <StatCard
+            title="Tasks"
+            value="12"
+            icon="checkmark-circle-outline"
+            style={styles.statCard}
+          />
+          <StatCard
+            title="Messages"
+            value="5"
+            icon="chatbubble-outline"
+            style={styles.statCard}
+          />
         </View>
 
-        <View style={styles.smallCard}>
-          <Text style={styles.cardTitle}>Messages</Text>
-          <Text style={styles.cardValue}>5</Text>
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <ActionCard
+            title="Mark Attendance"
+            subtitle="Update today's attendance"
+            icon="calendar-outline"
+            onPress={() => router.push("/(tabs)/attendance")}
+          />
+          <ActionCard
+            title="View Announcements"
+            subtitle="Latest school updates"
+            icon="notifications-outline"
+            onPress={() => router.push("/(tabs)/announcements")}
+          />
         </View>
-      </View>
 
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>Focus Time</Text>
-        <Text style={styles.cardValue}>2h 30m</Text>
-      </View>
+        {/* System Status */}
+        <View style={styles.statusCard}>
+          <StatCard
+            title="System Status"
+            value="All systems running"
+            icon="shield-checkmark-outline"
+            iconColor={erp.colors.success}
+          />
+        </View>
 
-      <PrimaryButton title="Logout" onPress={logout} />
+        <PrimaryButton title="Logout" onPress={logout} />
+      </ScrollView>
     </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: erp.colors.surface,
-    padding: 18,
-    borderRadius: erp.radii.lg,
-    marginBottom: erp.space.md,
-    borderWidth: 1,
-    borderColor: erp.colors.border,
-  },
-
-  cardRow: {
+  statsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: erp.space.md,
+    marginBottom: erp.space.lg,
   },
-
-  smallCard: {
-    backgroundColor: erp.colors.surface,
-    padding: 18,
-    borderRadius: erp.radii.lg,
-    width: "48%",
-    marginBottom: erp.space.md,
-    borderWidth: 1,
-    borderColor: erp.colors.border,
+  statCard: {
+    flex: 1,
   },
-
-  cardTitle: {
-    color: erp.colors.textMuted,
-    fontSize: 14,
-    marginBottom: erp.space.sm,
-    fontWeight: "500",
+  section: {
+    marginBottom: erp.space.lg,
   },
-
-  cardValue: {
-    color: erp.colors.accent,
-    fontSize: 20,
-    fontWeight: "600",
+  statusCard: {
+    marginBottom: erp.space.xl,
   },
 });
