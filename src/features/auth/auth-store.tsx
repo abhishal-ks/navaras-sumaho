@@ -11,6 +11,7 @@ type AuthState = {
   token: string | null;
   me: AuthApi.AuthMe | null;
   login: (params: { email: string; password: string }) => Promise<void>;
+  loginStudent: (params: { admissionNumber: string; password: string }) => Promise<void>;
   refreshMe: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -82,19 +83,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (params: { email: string; password: string }) => {
       setStatus("loading");
-      const { accessToken } = await AuthApi.login(params);
-      await saveToken(accessToken);
-      setToken(accessToken);
-      await refreshMe();
-      setStatus("authenticated");
-      router.replace("/");
+      try {
+        const { accessToken } = await AuthApi.login(params);
+        await saveToken(accessToken);
+        setToken(accessToken);
+        await refreshMe();
+        setStatus("authenticated");
+        router.replace("/");
+      } catch (error) {
+        setStatus("unauthenticated");
+        throw error;
+      }
     },
     [refreshMe]
   );
 
+  const loginStudent = useCallback(
+    async (params: { admissionNumber: string; password: string }) => {
+      setStatus("loading");
+      try {
+        const { access_token } = await AuthApi.studentLogin(params);
+        await saveToken(access_token);
+        setToken(access_token);
+        const meData = await AuthApi.me();
+        setMe(meData);
+        setStatus("authenticated");
+        router.replace("/(student)");
+      } catch (error) {
+        setStatus("unauthenticated");
+        throw error;
+      }
+    },
+    []
+  );
+
   const value = useMemo<AuthState>(
-    () => ({ status, token, me, login, refreshMe, logout }),
-    [status, token, me, login, refreshMe, logout]
+    () => ({ status, token, me, login, loginStudent, refreshMe, logout }),
+    [status, token, me, login, loginStudent, refreshMe, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

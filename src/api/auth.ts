@@ -9,7 +9,10 @@ export async function login(params: { email: string; password: string }) {
   const res = await api.post<{ accessToken: string }>("/auth/login", params);
   return res.data;
 }
-
+export async function studentLogin(params: { admissionNumber: string; password: string }) {
+  const res = await api.post<{ access_token: string }>('/auth/student-login', params);
+  return res.data;
+}
 export async function me() {
   const res = await api.get<AuthMe>("/auth/me");
   return res.data;

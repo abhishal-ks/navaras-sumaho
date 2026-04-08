@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import { useAuth } from "@/src/features/auth/auth-store";
 import { AppScreen } from "@/src/ui/app-screen";
 import { ErrorBox, PrimaryButton } from "@/src/ui/basic";
@@ -76,6 +77,12 @@ export default function Login() {
           disabled={status === "loading"}
           loading={status === "loading"}
         />
+        <Pressable onPress={() => router.replace("/(auth)/student-login")}
+          style={styles.linkRow}
+          accessibilityRole="button"
+        >
+          <Text style={styles.link}>Student login</Text>
+        </Pressable>
       </View>
     </AppScreen>
   );
@@ -137,5 +144,14 @@ const styles = StyleSheet.create({
   eyeBtn: {
     padding: erp.space.sm,
     marginBottom: erp.space.md,
+  },
+  linkRow: {
+    marginTop: erp.space.md,
+    alignItems: "center",
+  },
+  link: {
+    color: erp.colors.accent,
+    fontSize: 13,
+    fontWeight: "700",
   },
 });
