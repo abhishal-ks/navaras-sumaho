@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as StudentsApi from "@/src/api/students";
 import { ErrorBox, Field, Info, PrimaryButton, Screen } from "@/src/ui/basic";
+import { OptionSelector } from "@/src/ui/erp-widgets";
 
 export default function AdminStudents() {
   const [classId, setClassId] = useState("");
@@ -59,7 +60,16 @@ export default function AdminStudents() {
       <Info>Create student</Info>
       <Field label="Name" value={createName} onChangeText={setCreateName} placeholder="Student name" />
       <Field label="Admission number" value={createAdmission} onChangeText={setCreateAdmission} placeholder="A-0001" />
-      <Field label="Gender (optional)" value={createGender} onChangeText={setCreateGender} placeholder="M/F" />
+      <OptionSelector
+        label="Gender"
+        options={[
+          { label: "Male", value: "M" },
+          { label: "Female", value: "F" },
+          { label: "Other", value: "O" },
+        ]}
+        value={createGender as any}
+        onSelect={setCreateGender as any}
+      />
       <PrimaryButton title="Create student" onPress={() => void createStudent()} loading={submitting} disabled={!classId} />
     </Screen>
   );

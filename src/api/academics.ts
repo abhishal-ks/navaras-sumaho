@@ -84,4 +84,24 @@ export async function getStudentReport(studentId: string) {
   const res = await api.get(`/academics/students/${studentId}/report`);
   return res.data;
 }
+export async function getAttendance(classId: string, date?: string) {
+  const res = await api.get<any>(`/academics/classes/${classId}/attendance`, {
+    params: { date },
+  });
+  return res.data;
+}
 
+export async function getExams(classId: string) {
+  const res = await api.get<any>(`/academics/classes/${classId}/exams`);
+  return res.data;
+}
+
+export async function getExamMarks(studentId: string) {
+  const res = await api.get<any>(`/academics/students/${studentId}/marks`);
+  return res.data;
+}
+
+export async function listSubjects(classId: string) {
+  const res = await api.get<any>(`/academics/classes/${classId}/subjects`);
+  return res.data;
+}

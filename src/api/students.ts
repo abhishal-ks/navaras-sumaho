@@ -30,3 +30,8 @@ export async function createForClass(
   return res.data;
 }
 
+export async function getReport(studentId: string) {
+  const res = await api.get<any>(`/academics/students/${studentId}/report`);
+  return res.data;
+}
+

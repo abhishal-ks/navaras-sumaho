@@ -28,3 +28,7 @@ export async function create(params: {
   return res.data;
 }
 
+export async function deleteAnnouncement(id: string) {
+  await api.delete(`/announcements/${id}`);
+}
+

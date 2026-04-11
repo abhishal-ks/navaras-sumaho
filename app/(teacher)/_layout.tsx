@@ -25,8 +25,8 @@ export default function TeacherLayout() {
         name="profile"
         options={{ title: "Profile", tabBarIcon: tabIcon("person-outline") }}
       />
-      <Tabs.Screen name="attendance" options={{ href: null }} />
-      <Tabs.Screen name="assignments" options={{ href: null }} />
+      <Tabs.Screen name="attendance" options={{ title: "Attendance", tabBarIcon: tabIcon("calendar-outline"), href: null }} />
+      <Tabs.Screen name="assignments" options={{ title: "Assignments", tabBarIcon: tabIcon("reader-outline"), href: null }} />
     </Tabs>
   );
 }

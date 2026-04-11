@@ -43,6 +43,16 @@ export default function AdminLayout() {
       <Tabs.Screen
         name="reports"
         options={{
+          title: "Reports",
+          tabBarIcon: tabIcon("document-text-outline"),
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="parents"
+        options={{
+          title: "Parents",
+          tabBarIcon: tabIcon("people-outline"),
           href: null,
         }}
       />

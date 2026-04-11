@@ -11,8 +11,10 @@ type AuthState = {
   token: string | null;
   me: AuthApi.AuthMe | null;
   login: (params: { email: string; password: string }) => Promise<void>;
+  register: (params: { name: string; email: string; password: string; role?: string }) => Promise<void>;
   loginStudent: (params: { admissionNumber: string; password: string }) => Promise<void>;
-  refreshMe: () => Promise<void>;
+  parentActivate: (params: { email: string; password: string }) => Promise<void>;
+  refreshMe: () => Promise<AuthApi.AuthMe>;
   logout: () => Promise<void>;
 };
 
@@ -46,6 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const nextMe = await AuthApi.me();
     setMe(nextMe);
     await AsyncStorage.setItem(ROLE_KEY, nextMe.role);
+    return nextMe;
   }, []);
 
   const logout = useCallback(async () => {
@@ -87,9 +90,87 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { accessToken } = await AuthApi.login(params);
         await saveToken(accessToken);
         setToken(accessToken);
-        await refreshMe();
+        const userMe = await refreshMe();
+
         setStatus("authenticated");
-        router.replace("/");
+
+        // Redirect based on role
+        const role = userMe.role;
+        if (role === "TEACHER") {
+          router.replace("/(teacher)");
+        } else if (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") {
+          router.replace("/(admin)");
+        } else if (role === "STUDENT") {
+          router.replace("/(student)");
+        } else if (role === "PARENT") {
+          router.replace("/(parent)");
+        } else {
+          router.replace("/(auth)/login");
+        }
+      } catch (error) {
+        setStatus("unauthenticated");
+        throw error;
+      }
+    },
+    [refreshMe]
+  );
+
+  const register = useCallback(
+    async (params: { name: string; email: string; password: string; role?: string }) => {
+      setStatus("loading");
+      try {
+        const { accessToken, user } = await AuthApi.register(params);
+        await saveToken(accessToken);
+        setToken(accessToken);
+        const userMe = await refreshMe();
+
+        setStatus("authenticated");
+
+        // Redirect based on role
+        const role = userMe.role;
+        if (role === "TEACHER") {
+          router.replace("/(teacher)");
+        } else if (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") {
+          router.replace("/(admin)");
+        } else if (role === "STUDENT") {
+          router.replace("/(student)");
+        } else if (role === "PARENT") {
+          router.replace("/(parent)");
+        } else {
+          router.replace("/(auth)/login");
+        }
+      } catch (error) {
+        setStatus("unauthenticated");
+        throw error;
+      }
+    },
+    [refreshMe]
+  );
+
+  const parentActivate = useCallback(
+    async (params: { email: string; password: string }) => {
+      setStatus("loading");
+      try {
+        const { accessToken } = await AuthApi.parentActivate(params);
+        await saveToken(accessToken);
+        setToken(accessToken);
+        const userMe = await refreshMe();
+
+        setStatus("authenticated");
+
+        // Redirect based on role
+        const role = userMe.role;
+        if (role === "TEACHER") {
+          router.replace("/(teacher)");
+        } else if (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") {
+          router.replace("/(admin)");
+        } else if (role === "STUDENT") {
+          router.replace("/(student)");
+        } else if (role === "PARENT") {
+          router.replace("/(parent)");
+        } else {
+          router.replace("/(auth)/login");
+        }
       } catch (error) {
         setStatus("unauthenticated");
         throw error;
@@ -107,6 +188,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setToken(access_token);
         const meData = await AuthApi.me();
         setMe(meData);
+        await AsyncStorage.setItem(ROLE_KEY, meData.role);
         setStatus("authenticated");
         router.replace("/(student)");
       } catch (error) {
@@ -118,8 +200,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo<AuthState>(
-    () => ({ status, token, me, login, loginStudent, refreshMe, logout }),
-    [status, token, me, login, loginStudent, refreshMe, logout]
+    () => ({ status, token, me, login, register, loginStudent, parentActivate, refreshMe, logout }),
+    [status, token, me, login, register, loginStudent, parentActivate, refreshMe, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

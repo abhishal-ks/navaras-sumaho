@@ -7,19 +7,37 @@ import { AppScreen } from "@/src/ui/app-screen";
 import { ErrorBox, PrimaryButton } from "@/src/ui/basic";
 import { erp } from "@/src/theme/erp";
 
-export default function Login() {
+export default function ParentActivate() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const { login, status } = useAuth();
+  const { parentActivate, status } = useAuth();
   const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+  const handleActivate = async () => {
     setError(null);
+
+    // Validation
+    if (!email || !password) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
     try {
-      await login({ email, password });
+      await parentActivate({ email, password });
     } catch (err) {
-      setError((err as Error)?.message ?? "Login failed");
+      setError((err as Error)?.message ?? "Activation failed");
     }
   };
 
@@ -31,8 +49,8 @@ export default function Login() {
     >
       <View style={styles.card}>
         <Text style={styles.brand}>Navarasa</Text>
-        <Text style={styles.title}>Welcome back</Text>
-        <Text style={styles.subtitle}>Sign in to continue</Text>
+        <Text style={styles.title}>Welcome, Parent</Text>
+        <Text style={styles.subtitle}>Set up your account to access your child's information</Text>
 
         {error ? <ErrorBox message={error} /> : null}
 
@@ -40,11 +58,12 @@ export default function Login() {
         <TextInput
           value={email}
           onChangeText={setEmail}
-          placeholder="you@school.com"
+          placeholder="you@example.com"
           placeholderTextColor={erp.colors.textMuted}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
+          editable={status !== "loading"}
           style={styles.input}
         />
 
@@ -56,6 +75,7 @@ export default function Login() {
             placeholder="••••••••"
             placeholderTextColor={erp.colors.textMuted}
             secureTextEntry={!showPassword}
+            editable={status !== "loading"}
             style={[styles.input, styles.inputFlex]}
           />
           <Pressable
@@ -71,29 +91,30 @@ export default function Login() {
           </Pressable>
         </View>
 
+        <Text style={styles.label}>Confirm Password</Text>
+        <TextInput
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholder="••••••••"
+          placeholderTextColor={erp.colors.textMuted}
+          secureTextEntry={!showPassword}
+          editable={status !== "loading"}
+          style={styles.input}
+        />
+
         <PrimaryButton
-          title={status === "loading" ? "Signing in…" : "Sign in"}
-          onPress={handleLogin}
+          title={status === "loading" ? "Activating…" : "Activate Account"}
+          onPress={handleActivate}
           disabled={status === "loading"}
           loading={status === "loading"}
         />
-        <Pressable onPress={() => router.replace("/(auth)/student-login")}
+
+        <Pressable
+          onPress={() => router.replace("/(auth)/login")}
           style={styles.linkRow}
           accessibilityRole="button"
         >
-          <Text style={styles.link}>Student login</Text>
-        </Pressable>
-        <Pressable onPress={() => router.replace("/(auth)/register")}
-          style={styles.linkRow}
-          accessibilityRole="button"
-        >
-          <Text style={styles.link}>Create admin account</Text>
-        </Pressable>
-        <Pressable onPress={() => router.replace("/(auth)/parent-activate")}
-          style={styles.linkRow}
-          accessibilityRole="button"
-        >
-          <Text style={styles.link}>Parent activation</Text>
+          <Text style={styles.link}>Already have an account? Sign in</Text>
         </Pressable>
       </View>
     </AppScreen>
@@ -132,38 +153,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   label: {
-    color: erp.colors.textSecondary,
+    marginTop: erp.space.md,
+    marginBottom: erp.space.sm,
+    color: erp.colors.textPrimary,
+    fontSize: 14,
     fontWeight: "600",
-    marginBottom: 6,
-    fontSize: 13,
   },
   input: {
-    backgroundColor: erp.colors.bgElevated,
+    borderRadius: erp.radii.md,
     borderWidth: 1,
     borderColor: erp.colors.border,
-    borderRadius: erp.radii.md,
     paddingHorizontal: erp.space.md,
-    paddingVertical: 12,
+    paddingVertical: erp.space.md,
     color: erp.colors.textPrimary,
-    marginBottom: erp.space.md,
+    fontSize: 14,
   },
   passwordRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: erp.space.md,
   },
-  inputFlex: { flex: 1, marginBottom: 0, marginRight: erp.space.sm },
+  inputFlex: {
+    flexGrow: 1,
+  },
   eyeBtn: {
-    padding: erp.space.sm,
-    marginBottom: erp.space.md,
+    marginLeft: -36,
+    padding: erp.space.md,
   },
   linkRow: {
-    marginTop: erp.space.md,
+    marginTop: erp.space.lg,
     alignItems: "center",
   },
   link: {
     color: erp.colors.accent,
-    fontSize: 13,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "600",
   },
 });

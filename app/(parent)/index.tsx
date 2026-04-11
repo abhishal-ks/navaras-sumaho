@@ -1,15 +1,40 @@
 import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/src/features/auth/auth-store";
-import { Info, PrimaryButton, Screen } from "@/src/ui/basic";
+import { Info, PrimaryButton, Screen, ErrorBox } from "@/src/ui/basic";
+import { Href, router } from "expo-router";
+import * as ParentsApi from "@/src/api/parents";
+import { ListRow, SectionHeader } from "@/src/ui/erp-widgets";
 
 export default function ParentHome() {
   const { logout } = useAuth();
 
+  const childrenQuery = useQuery({
+    queryKey: ["parent", "children"],
+    queryFn: () => ParentsApi.getMyChildren(),
+  });
+
   return (
     <Screen title="Parent">
-      <Info>
-        Parent role is recognized in routing. Parent-specific endpoints/UI can be added once backend features land.
-      </Info>
+      {childrenQuery.isLoading ? <Info loading>Loading children…</Info> : null}
+      {childrenQuery.isError ? <ErrorBox message={(childrenQuery.error as Error)?.message ?? "Failed to load children"} /> : null}
+      {childrenQuery.data && childrenQuery.data.length > 0 ? (
+        <>
+          <SectionHeader title="My Children" />
+          {childrenQuery.data.map((child) => (
+            <ListRow
+              key={child.studentId}
+              title={child.name}
+              subtitle={`Admission: ${child.admissionNumber} | Class: ${child.classId}`}
+              onPress={() => router.push(`/(parent)/child/${child.studentId}` as Href)}
+            />
+          ))}
+        </>
+      ) : !childrenQuery.isLoading ? (
+        <Info>No children linked to this account</Info>
+      ) : null}
+
+      <PrimaryButton title="Announcements" onPress={() => router.push("/(parent)/alerts" as Href)} />
       <PrimaryButton title="Logout" onPress={logout} />
     </Screen>
   );

@@ -1,13 +1,15 @@
-import { useState } from "react";
+
 import { View, Text, StyleSheet } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import * as AcademicsApi from "@/src/api/academics";
-import { ErrorBox, Field, Info, PrimaryButton } from "@/src/ui/basic";
+import { ErrorBox, Info, PrimaryButton } from "@/src/ui/basic";
 import { AppScreen } from "@/src/ui/app-screen";
 import { erp } from "@/src/theme/erp";
+import { useAuth } from "@/src/features/auth/auth-store";
 
 export default function StudentReport() {
-  const [studentId, setStudentId] = useState("");
+  const { me } = useAuth();
+  const studentId = me?.role === "STUDENT" ? me.studentId : "";
 
   const reportQuery = useQuery({
     queryKey: ["reports", "student", studentId],
@@ -18,18 +20,7 @@ export default function StudentReport() {
   return (
     <AppScreen title="Report Card">
       {!studentId ? (
-        <>
-          <Info>
-            Paste your Student ID to view your report card. Enter the ID below and tap "Fetch Report".
-          </Info>
-          <Field label="Student ID" value={studentId} onChangeText={setStudentId} placeholder="paste student _id" />
-          <PrimaryButton
-            title="Fetch Report"
-            onPress={() => void reportQuery.refetch()}
-            loading={reportQuery.isFetching}
-            disabled={!studentId}
-          />
-        </>
+        <Info>Unable to load report: Student ID not available</Info>
       ) : (
         <>
           <View style={styles.idDisplay}>
