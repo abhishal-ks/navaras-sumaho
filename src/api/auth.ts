@@ -1,7 +1,7 @@
 import { api } from "@/src/services/api";
 
 export type AuthMe =
-  | { role: "SUPER_ADMIN" }
+  | { role: "SUPER_ADMIN"; schoolId?: string }
   | { role: "SCHOOL_ADMIN"; schoolId?: string }
   | { role: "TEACHER"; schoolId: string }
   | { role: "PARENT" }
@@ -30,6 +30,11 @@ export async function studentLogin(params: { admissionNumber: string; password: 
 
 export async function me() {
   const res = await api.get<AuthMe>("/auth/me");
+  return res.data;
+}
+
+export async function switchSchool(schoolId: string) {
+  const res = await api.post<{ accessToken: string; message: string }>("/auth/switch-school", { schoolId });
   return res.data;
 }
 

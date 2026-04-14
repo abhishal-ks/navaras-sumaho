@@ -14,6 +14,7 @@ type AuthState = {
   register: (params: { name: string; email: string; password: string; role?: string }) => Promise<void>;
   loginStudent: (params: { admissionNumber: string; password: string }) => Promise<void>;
   parentActivate: (params: { email: string; password: string }) => Promise<void>;
+  switchSchool: (schoolId: string) => Promise<void>;
   refreshMe: () => Promise<AuthApi.AuthMe>;
   logout: () => Promise<void>;
 };
@@ -199,9 +200,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const switchSchool = useCallback(
+    async (schoolId: string) => {
+      const { accessToken } = await AuthApi.switchSchool(schoolId);
+      await saveToken(accessToken);
+      setToken(accessToken);
+      const userMe = await refreshMe();
+      // Stay on current screen but with updated context
+    },
+    [refreshMe]
+  );
+
   const value = useMemo<AuthState>(
-    () => ({ status, token, me, login, register, loginStudent, parentActivate, refreshMe, logout }),
-    [status, token, me, login, register, loginStudent, parentActivate, refreshMe, logout]
+    () => ({ status, token, me, login, register, loginStudent, parentActivate, switchSchool, refreshMe, logout }),
+    [status, token, me, login, register, loginStudent, parentActivate, switchSchool, refreshMe, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -5,6 +5,7 @@ export type ParentChild = {
   name: string;
   admissionNumber: string;
   classId: string;
+  className: string;
   schoolId: string;
 };
 

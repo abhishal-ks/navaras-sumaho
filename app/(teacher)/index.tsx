@@ -1,16 +1,13 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { router } from "expo-router";
-import { useAuth } from "@/src/features/auth/auth-store";
 import { AppScreen } from "@/src/ui/app-screen";
-import { PrimaryButton } from "@/src/ui/basic";
+import { LogoutButton } from "@/src/ui/logout-button";
 import { ActionCard } from "@/components/ui/action-card";
 import { StatCard } from "@/components/ui/stat-card";
 import { erp } from "@/src/theme/erp";
 
 export default function TeacherDashboard() {
-  const { logout } = useAuth();
-
   const teacherName = 'Teacher';
 
   return (
@@ -69,7 +66,7 @@ export default function TeacherDashboard() {
         />
       </View>
 
-      <PrimaryButton title="Logout" onPress={logout} />
+      <LogoutButton />
     </AppScreen>
   );
 }

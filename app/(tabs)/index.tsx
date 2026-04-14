@@ -1,15 +1,12 @@
 import { View, StyleSheet, ScrollView } from "react-native";
 import { router } from "expo-router";
-import { useAuth } from "@/src/features/auth/auth-store";
 import { AppScreen } from "@/src/ui/app-screen";
-import { PrimaryButton } from "@/src/ui/basic";
+import { LogoutButton } from "@/src/ui/logout-button";
 import { StatCard } from "@/components/ui/stat-card";
 import { ActionCard } from "@/components/ui/action-card";
 import { erp } from "@/src/theme/erp";
 
 export default function Dashboard() {
-  const { logout } = useAuth();
-
   const userName = 'User';
 
   return (
@@ -57,7 +54,7 @@ export default function Dashboard() {
           />
         </View>
 
-        <PrimaryButton title="Logout" onPress={logout} />
+        <LogoutButton />
       </ScrollView>
     </AppScreen>
   );

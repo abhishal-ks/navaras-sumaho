@@ -97,7 +97,7 @@ export default function TeacherAnnouncements() {
                   disabled={deleting === a._id}
                   style={styles.deleteButton}
                 >
-                  <Ionicons name="trash-outline" size={20} color={erp.colors.error} />
+                  <Ionicons name="trash-outline" size={20} color={erp.colors.danger} />
                 </Pressable>
               </View>
               <Text style={styles.announcementMessage}>{a.message}</Text>

@@ -1,12 +1,12 @@
 import { AppScreen } from "@/src/ui/app-screen";
-import { PrimaryButton } from "@/src/ui/basic";
+import { LogoutButton } from "@/src/ui/logout-button";
 import { ErpCard } from "@/src/ui/erp-widgets";
 import { useAuth } from "@/src/features/auth/auth-store";
 import { Text } from "react-native";
 import { erp } from "@/src/theme/erp";
 
 export default function ParentProfile() {
-  const { me, logout } = useAuth();
+  const { me } = useAuth();
 
   return (
     <AppScreen title="Profile" subtitle="Account">
@@ -24,7 +24,7 @@ export default function ParentProfile() {
           </>
         ) : null}
       </ErpCard>
-      <PrimaryButton title="Log out" onPress={logout} />
+      <LogoutButton />
     </AppScreen>
   );
 }

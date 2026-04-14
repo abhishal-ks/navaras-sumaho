@@ -10,6 +10,11 @@ export type School = {
   updatedAt: string;
 };
 
+export async function listSchools() {
+  const res = await api.get<School[]>("/schools");
+  return res.data;
+}
+
 export async function createSchool(params: { name: string; board: string; address: string }) {
   const res = await api.post<School>("/schools", params);
   return res.data;

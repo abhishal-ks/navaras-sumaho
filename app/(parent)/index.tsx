@@ -1,14 +1,13 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/src/features/auth/auth-store";
+
 import { Info, PrimaryButton, Screen, ErrorBox } from "@/src/ui/basic";
+import { LogoutButton } from "@/src/ui/logout-button";
 import { Href, router } from "expo-router";
 import * as ParentsApi from "@/src/api/parents";
 import { ListRow, SectionHeader } from "@/src/ui/erp-widgets";
 
 export default function ParentHome() {
-  const { logout } = useAuth();
-
   const childrenQuery = useQuery({
     queryKey: ["parent", "children"],
     queryFn: () => ParentsApi.getMyChildren(),
@@ -25,7 +24,7 @@ export default function ParentHome() {
             <ListRow
               key={child.studentId}
               title={child.name}
-              subtitle={`Admission: ${child.admissionNumber} | Class: ${child.classId}`}
+              subtitle={`Admission: ${child.admissionNumber} | Class: ${child.className}`}
               onPress={() => router.push(`/(parent)/child/${child.studentId}` as Href)}
             />
           ))}
@@ -35,7 +34,7 @@ export default function ParentHome() {
       ) : null}
 
       <PrimaryButton title="Announcements" onPress={() => router.push("/(parent)/alerts" as Href)} />
-      <PrimaryButton title="Logout" onPress={logout} />
+      <LogoutButton />
     </Screen>
   );
 }
