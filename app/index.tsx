@@ -23,8 +23,10 @@ export default function Index() {
 
             if (resolvedRole === "TEACHER") {
                 router.replace("/(teacher)");
-            } else if (resolvedRole === "SUPER_ADMIN" || resolvedRole === "SCHOOL_ADMIN") {
-                router.replace("/(admin)");
+            } else if (resolvedRole === "SUPER_ADMIN") {
+                router.replace("/(super-admin)");
+            } else if (resolvedRole === "SCHOOL_ADMIN") {
+                router.replace("/(school-admin)");
             } else if (resolvedRole === "STUDENT") {
                 router.replace("/(student)");
             } else if (resolvedRole === "PARENT") {

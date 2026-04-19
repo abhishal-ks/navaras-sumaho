@@ -20,6 +20,11 @@ export async function createSchool(params: { name: string; board: string; addres
   return res.data;
 }
 
+export async function assignSchoolAdmin(schoolId: string, adminUserId: string) {
+  const res = await api.post(`/schools/${schoolId}/admins`, { adminUserId });
+  return res.data;
+}
+
 export async function addTeacher(
   schoolId: string,
   params: { name: string; email: string; phone?: string; password?: string }

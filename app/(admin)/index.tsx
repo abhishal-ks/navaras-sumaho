@@ -39,6 +39,14 @@ export default function Admin() {
         {schoolInfo}
       </Info>
 
+      <PrimaryButton title="School Setup" onPress={() => router.push("/(admin)/schools" as Href)} />
+      <PrimaryButton title="Academics Setup" onPress={() => router.push("/(admin)/academics" as Href)} />
+      <PrimaryButton title="Students" onPress={() => router.push("/(admin)/students")} />
+      <PrimaryButton title="Teachers" onPress={() => router.push("/(admin)/teachers")} />
+      <PrimaryButton title="Parents" onPress={() => router.push("/(admin)/parents")} />
+      <PrimaryButton title="Reports" onPress={() => router.push("/(admin)/reports" as Href)} />
+      <LogoutButton />
+
       {me?.role === "SUPER_ADMIN" && schools.length > 0 && (
         <Info>
           Available Schools:
@@ -53,13 +61,6 @@ export default function Admin() {
         </Info>
       )}
 
-      <PrimaryButton title="School Setup" onPress={() => router.push("/(admin)/schools" as Href)} />
-      <PrimaryButton title="Academics Setup" onPress={() => router.push("/(admin)/academics" as Href)} />
-      <PrimaryButton title="Students" onPress={() => router.push("/(admin)/students")} />
-      <PrimaryButton title="Teachers" onPress={() => router.push("/(admin)/teachers")} />
-      <PrimaryButton title="Parents" onPress={() => router.push("/(admin)/parents")} />
-      <PrimaryButton title="Reports" onPress={() => router.push("/(admin)/reports" as Href)} />
-      <LogoutButton />
     </AppScreen>
   );
 }

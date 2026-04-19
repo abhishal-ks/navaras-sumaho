@@ -99,8 +99,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const role = userMe.role;
         if (role === "TEACHER") {
           router.replace("/(teacher)");
-        } else if (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") {
-          router.replace("/(admin)");
+        } else if (role === "SUPER_ADMIN") {
+          router.replace("/(super-admin)");
+        } else if (role === "SCHOOL_ADMIN") {
+          router.replace("/(school-admin)");
         } else if (role === "STUDENT") {
           router.replace("/(student)");
         } else if (role === "PARENT") {
@@ -131,8 +133,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const role = userMe.role;
         if (role === "TEACHER") {
           router.replace("/(teacher)");
-        } else if (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") {
-          router.replace("/(admin)");
+        } else if (role === "SUPER_ADMIN") {
+          router.replace("/(super-admin)");
+        } else if (role === "SCHOOL_ADMIN") {
+          router.replace("/(school-admin)");
         } else if (role === "STUDENT") {
           router.replace("/(student)");
         } else if (role === "PARENT") {
@@ -163,8 +167,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const role = userMe.role;
         if (role === "TEACHER") {
           router.replace("/(teacher)");
-        } else if (role === "SUPER_ADMIN" || role === "SCHOOL_ADMIN") {
-          router.replace("/(admin)");
+        } else if (role === "SUPER_ADMIN") {
+          router.replace("/(super-admin)");
+        } else if (role === "SCHOOL_ADMIN") {
+          router.replace("/(school-admin)");
         } else if (role === "STUDENT") {
           router.replace("/(student)");
         } else if (role === "PARENT") {

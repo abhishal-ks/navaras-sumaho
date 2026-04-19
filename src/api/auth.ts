@@ -18,6 +18,11 @@ export async function register(params: { name: string; email: string; password: 
   return res.data;
 }
 
+export async function createAdminUser(params: { name: string; email: string; password: string }) {
+  const res = await api.post<{ message: string; user: any }>("/auth/create-admin", params);
+  return res.data;
+}
+
 export async function parentActivate(params: { email: string; password: string }) {
   const res = await api.post<{ accessToken: string; message: string }>("/auth/parent/activate", params);
   return res.data;
