@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import * as SchoolsApi from "@/src/api/schools";
-import * as AuthApi from "@/src/api/auth";
-import { ErrorBox, Info, PrimaryButton } from "@/src/ui/basic";
+import { ErrorBox, SectionTitle, SuccessNotification, PrimaryButton } from "@/src/ui/basic";
 import { ControlledField } from "@/src/ui/rhf";
-import { ScrollView } from "react-native";
+import { ScrollView, View, Text, TextInput, TouchableOpacity } from "react-native";
 import { AppScreen } from "@/src/ui/app-screen";
+import { ErpCard } from "@/src/ui/erp-widgets";
+import { erp } from "@/src/theme/erp";
 
 type SchoolForm = {
   name: string;
@@ -13,33 +15,34 @@ type SchoolForm = {
   address: string;
 };
 
-type AdminForm = {
-  name: string;
-  email: string;
-  password: string;
-};
-
 export default function SuperAdminSchools() {
   const schoolForm = useForm<SchoolForm>({
     defaultValues: { name: "", board: "", address: "" },
   });
-  const adminForm = useForm<AdminForm>({
-    defaultValues: { name: "", email: "", password: "" },
-  });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [createdSchool, setCreatedSchool] = useState<SchoolsApi.School | null>(null);
-  const [assignedAdmin, setAssignedAdmin] = useState<any | null>(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+
+  const schoolsQuery = useQuery({
+    queryKey: ["schools", page, search],
+    queryFn: () => SchoolsApi.listSchools({ page, limit: 10, search }),
+  });
 
   const createSchool = async () => {
     setError(null);
+    setSuccess(null);
     setLoading(true);
     try {
       const values = schoolForm.getValues();
       const s = await SchoolsApi.createSchool(values);
       setCreatedSchool(s);
+      setSuccess("School created successfully!");
       schoolForm.reset();
+      schoolsQuery.refetch();
     } catch (e: any) {
       setError(e?.message ?? "Failed to create school");
     } finally {
@@ -47,71 +50,113 @@ export default function SuperAdminSchools() {
     }
   };
 
-  const assignAdmin = async () => {
-    if (!createdSchool) {
-      setError("Please create a school first");
-      return;
-    }
-    setError(null);
-    setLoading(true);
-    try {
-      const values = adminForm.getValues();
-      // First create the admin user
-      const createdUser = await AuthApi.createAdminUser({
-        name: values.name,
-        email: values.email,
-        password: values.password,
-      });
-
-      // Then assign them as school admin
-      const res = await SchoolsApi.assignSchoolAdmin(createdSchool._id, createdUser.user.id);
-      setAssignedAdmin(res);
-      adminForm.reset();
-    } catch (e: any) {
-      setError(e?.message ?? "Failed to assign admin");
-    } finally {
-      setLoading(false);
-    }
+  const handleSearch = (text: string) => {
+    setSearch(text);
+    setPage(1);
   };
 
   return (
     <AppScreen title="School Management">
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: erp.space.lg, paddingBottom: 100 }}>
         {error ? <ErrorBox message={error} /> : null}
+        {success ? <SuccessNotification>{success}</SuccessNotification> : null}
 
-        <Info>
-          Super Admin: Create schools and assign administrators
-        </Info>
+        {/* SECTION: Create School */}
+        <SectionTitle>Create New School</SectionTitle>
+        <ErpCard>
+          <ControlledField control={schoolForm.control} name="name" label="School name" placeholder="Navaras Public School" />
+          <ControlledField control={schoolForm.control} name="board" label="Board" placeholder="CBSE" />
+          <ControlledField control={schoolForm.control} name="address" label="Address" placeholder="Street, City" />
+          <PrimaryButton title="Create School" onPress={createSchool} loading={loading} />
+          {createdSchool && (
+            <View style={{ backgroundColor: erp.colors.successBg, padding: erp.space.md, borderRadius: erp.radii.md, marginTop: erp.space.md }}>
+              <Text style={{ color: erp.colors.success, fontWeight: "600", marginBottom: erp.space.xs }}>
+                ✓ School created successfully
+              </Text>
+              <Text style={{ color: erp.colors.success, fontSize: 12 }}>
+                {createdSchool.name} ({createdSchool._id})
+              </Text>
+            </View>
+          )}
+        </ErpCard>
 
-        <ControlledField control={schoolForm.control} name="name" label="School name" placeholder="Navaras Public School" />
-        <ControlledField control={schoolForm.control} name="board" label="Board" placeholder="CBSE" />
-        <ControlledField control={schoolForm.control} name="address" label="Address" placeholder="Street, City" />
-        <PrimaryButton title="Create School" onPress={createSchool} loading={loading} />
+        {/* SECTION: All Schools */}
+        <SectionTitle>All Schools ({schoolsQuery.data?.total || 0})</SectionTitle>
+        <TextInput
+          placeholder="Search schools by name or address..."
+          value={search}
+          onChangeText={handleSearch}
+          style={{
+            borderWidth: 1,
+            borderColor: erp.colors.border,
+            backgroundColor: erp.colors.surface,
+            color: erp.colors.textPrimary,
+            padding: erp.space.md,
+            marginVertical: erp.space.md,
+            borderRadius: erp.radii.md,
+            fontSize: 14,
+          }}
+          placeholderTextColor={erp.colors.textMuted}
+        />
 
-        {createdSchool && (
-          <>
-            <Info style={{ marginTop: 20 }}>
-              School created: {createdSchool.name} (ID: {createdSchool._id})
-            </Info>
+        {schoolsQuery.data?.schools.map((school) => (
+          <ErpCard key={school._id} style={{ marginBottom: erp.space.md }}>
+            <Text style={{ fontSize: 16, fontWeight: "700", color: erp.colors.textPrimary, marginBottom: erp.space.sm }}>
+              {school.name}
+            </Text>
+            <Text style={{ color: erp.colors.textSecondary, marginBottom: erp.space.xs, fontSize: 13 }}>
+              {school.board}
+            </Text>
+            <Text style={{ color: erp.colors.textMuted, marginBottom: erp.space.md, fontSize: 12 }}>
+              📍 {school.address}
+            </Text>
+            {school.admin ? (
+              <View style={{ backgroundColor: erp.colors.successBg, padding: erp.space.sm, borderRadius: erp.radii.md }}>
+                <Text style={{ color: erp.colors.success, fontWeight: "600", fontSize: 12 }}>
+                  ✓ Admin: {school.admin.name}
+                </Text>
+                <Text style={{ color: erp.colors.success, fontSize: 11, marginTop: 2 }}>
+                  {school.admin.email}
+                </Text>
+              </View>
+            ) : (
+              <View style={{ backgroundColor: erp.colors.warningBg, padding: erp.space.sm, borderRadius: erp.radii.md }}>
+                <Text style={{ color: erp.colors.warning, fontWeight: "600", fontSize: 12 }}>
+                  ⚠ No admin assigned
+                </Text>
+              </View>
+            )}
+          </ErpCard>
+        ))}
 
-            <Info>{"Assign School Admin"}</Info>
-            <ControlledField control={adminForm.control} name="name" label="Admin name" placeholder="Jane Doe" />
-            <ControlledField control={adminForm.control} name="email" label="Admin email" placeholder="admin@school.com" />
-            <ControlledField
-              control={adminForm.control}
-              name="password"
-              label="Admin password"
-              placeholder="min 6 chars"
-              secureTextEntry
-            />
-            <PrimaryButton title="Assign Admin" onPress={assignAdmin} loading={loading} />
-          </>
-        )}
-
-        {assignedAdmin && (
-          <Info style={{ marginTop: 20 }}>
-            Admin assigned successfully (User ID: {assignedAdmin.userId})
-          </Info>
+        {schoolsQuery.data && schoolsQuery.data.totalPages > 1 && (
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginVertical: erp.space.lg, gap: erp.space.md }}>
+            <TouchableOpacity
+              onPress={() => setPage(Math.max(1, page - 1))}
+              disabled={page === 1}
+              style={{
+                padding: erp.space.md,
+                backgroundColor: page === 1 ? erp.colors.border : erp.colors.accent,
+                borderRadius: erp.radii.md,
+              }}
+            >
+              <Text style={{ color: page === 1 ? erp.colors.textMuted : erp.colors.bg, fontWeight: "600" }}>← Prev</Text>
+            </TouchableOpacity>
+            <Text style={{ color: erp.colors.textSecondary, fontWeight: "600" }}>
+              {page} / {schoolsQuery.data.totalPages}
+            </Text>
+            <TouchableOpacity
+              onPress={() => setPage(Math.min(schoolsQuery.data!.totalPages, page + 1))}
+              disabled={page === schoolsQuery.data.totalPages}
+              style={{
+                padding: erp.space.md,
+                backgroundColor: page === schoolsQuery.data.totalPages ? erp.colors.border : erp.colors.accent,
+                borderRadius: erp.radii.md,
+              }}
+            >
+              <Text style={{ color: page === schoolsQuery.data.totalPages ? erp.colors.textMuted : erp.colors.bg, fontWeight: "600" }}>Next →</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </ScrollView>
     </AppScreen>

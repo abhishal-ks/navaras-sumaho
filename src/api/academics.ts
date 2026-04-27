@@ -21,6 +21,11 @@ export async function createClass(
   return res.data;
 }
 
+export async function listClasses(schoolId: string) {
+  const res = await api.get(`/academics/schools/${schoolId}/classes`);
+  return res.data;
+}
+
 export async function createSubject(
   classId: string,
   params: { name: string; code?: string }

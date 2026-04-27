@@ -1,14 +1,33 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as StudentsApi from "@/src/api/students";
+import * as AcademicsApi from "@/src/api/academics";
+import * as SchoolsApi from "@/src/api/schools";
 import { ErrorBox, Field, Info, PrimaryButton, Screen } from "@/src/ui/basic";
 import { OptionSelector } from "@/src/ui/erp-widgets";
+import { useAuth } from "@/src/features/auth/auth-store";
+import { AppScreen } from "@/src/ui/app-screen";
 
 export default function SchoolAdminStudents() {
+  const { me } = useAuth();
+  const schoolId = (me as any)?.schoolId;
+
   const [classId, setClassId] = useState("");
   const [createName, setCreateName] = useState("");
   const [createAdmission, setCreateAdmission] = useState("");
   const [createGender, setCreateGender] = useState("");
+
+  const schoolQuery = useQuery({
+    queryKey: ["school", schoolId],
+    queryFn: () => SchoolsApi.getSchool(schoolId!),
+    enabled: Boolean(schoolId),
+  });
+
+  const classesQuery = useQuery({
+    queryKey: ["classes", schoolId],
+    queryFn: () => AcademicsApi.listClasses(schoolId!),
+    enabled: Boolean(schoolId),
+  });
 
   const studentsQuery = useQuery({
     queryKey: ["students", "class", classId],
@@ -24,8 +43,6 @@ export default function SchoolAdminStudents() {
     setError(null);
     setSubmitting(true);
     try {
-      // Backend fills schoolId/academicYearId from class + active year, but DTO requires only these fields:
-      // CreateStudentDto requires name, admissionNumber, gender (see backend). We'll send only those fields.
       await StudentsApi.createForClass(classId, {
         name: createName,
         admissionNumber: createAdmission,
@@ -42,11 +59,25 @@ export default function SchoolAdminStudents() {
     }
   };
 
+  const classOptions = (classesQuery.data as Array<{ _id: string; name: string; section: string }>)?.map((cls) => ({
+    label: `${cls.name}-${cls.section}`,
+    value: cls._id,
+  })) || [];
+
   return (
-    <Screen title="Students">
+    <AppScreen title="Students">
       {error ? <ErrorBox message={error} /> : null}
 
-      <Field label="Class ID" value={classId} onChangeText={setClassId} placeholder="paste class _id" />
+      {schoolQuery.data && (
+        <Info>School: {schoolQuery.data.name}</Info>
+      )}
+
+      <OptionSelector
+        label="Class"
+        value={classId}
+        onSelect={setClassId}
+        options={classOptions}
+      />
       <PrimaryButton title="Refresh list" onPress={() => void studentsQuery.refetch()} loading={studentsQuery.isFetching} disabled={!classId} />
 
       {studentsQuery.data && (
@@ -66,7 +97,7 @@ export default function SchoolAdminStudents() {
       <OptionSelector
         label="Gender"
         value={createGender}
-        onChange={setCreateGender}
+        onSelect={setCreateGender}
         options={[
           { label: "Male", value: "male" },
           { label: "Female", value: "female" },
@@ -74,6 +105,6 @@ export default function SchoolAdminStudents() {
         ]}
       />
       <PrimaryButton title="Create student" onPress={createStudent} loading={submitting} disabled={!classId} />
-    </Screen>
+    </AppScreen>
   );
 }

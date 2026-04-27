@@ -76,6 +76,18 @@ export function PrimaryButton({
   );
 }
 
+export function SectionTitle({ children }: { children: string }) {
+  return <Text style={styles.sectionTitle}>{children}</Text>;
+}
+
+export function SuccessNotification({ children }: { children: string }) {
+  return (
+    <View style={styles.successBox}>
+      <Text style={styles.successText}>{children}</Text>
+    </View>
+  );
+}
+
 export function Info({ children, loading }: { children: React.ReactNode; loading?: boolean }) {
   return (
     <View style={styles.infoBox}>
@@ -128,14 +140,31 @@ const styles = StyleSheet.create({
   buttonDisabled: { opacity: 0.55 },
   buttonText: { color: erp.colors.bg, fontWeight: "700", fontSize: 16 },
   infoBox: {
-    backgroundColor: erp.colors.surface,
+    backgroundColor: erp.colors.surface2,
     borderColor: erp.colors.border,
     borderWidth: 1,
     padding: erp.space.md,
     borderRadius: erp.radii.md,
     marginBottom: erp.space.md,
   },
-  infoText: { color: erp.colors.textSecondary, marginTop: erp.space.md, textAlign: "center" },
+  infoText: { color: erp.colors.textPrimary, textAlign: "center", fontWeight: "500" },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: erp.colors.textPrimary,
+    marginTop: erp.space.lg,
+    marginBottom: erp.space.md,
+    paddingHorizontal: erp.space.xs,
+  },
+  successBox: {
+    backgroundColor: erp.colors.successBg,
+    borderColor: erp.colors.success,
+    borderWidth: 1,
+    padding: erp.space.md,
+    borderRadius: erp.radii.md,
+    marginBottom: erp.space.md,
+  },
+  successText: { color: erp.colors.success, fontWeight: "600", textAlign: "center" },
   loadingContainer: { justifyContent: "center", alignItems: "center", paddingVertical: erp.space.lg },
   error: {
     backgroundColor: erp.colors.dangerBg,

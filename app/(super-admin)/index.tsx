@@ -2,8 +2,21 @@ import { Text, ScrollView } from "react-native";
 import { AppScreen } from "@/src/ui/app-screen";
 import { StatCard } from "@/components/ui/stat-card";
 import { LogoutButton } from "@/src/ui/logout-button";
+import { useQuery } from "@tanstack/react-query";
+import * as SchoolsApi from "@/src/api/schools";
+import * as UsersApi from "@/src/api/users";
 
 export default function SuperAdminDashboard() {
+  const schoolsCountQuery = useQuery({
+    queryKey: ["schools-count"],
+    queryFn: SchoolsApi.countSchools,
+  });
+
+  const adminsCountQuery = useQuery({
+    queryKey: ["admins-count"],
+    queryFn: () => UsersApi.countUsers("SCHOOL_ADMIN"),
+  });
+
   return (
     <AppScreen title="Super Admin Dashboard">
       <ScrollView contentContainerStyle={{ padding: 20 }}>
@@ -13,14 +26,14 @@ export default function SuperAdminDashboard() {
 
         <StatCard
           title="Total Schools"
-          value="12"
+          value={schoolsCountQuery.data?.toString() || "0"}
           subtitle="Active schools in system"
           icon="business-outline"
         />
 
         <StatCard
           title="Total Admins"
-          value="8"
+          value={adminsCountQuery.data?.toString() || "0"}
           subtitle="School administrators"
           icon="people-outline"
         />

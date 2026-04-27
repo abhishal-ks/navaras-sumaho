@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/src/features/auth/auth-store";
 import * as SchoolsApi from "@/src/api/schools";
 import { ErrorBox, Info, PrimaryButton } from "@/src/ui/basic";
@@ -16,6 +17,12 @@ type TeacherForm = {
 export default function SchoolAdminTeachers() {
   const { me } = useAuth();
   const schoolId = (me && "schoolId" in me ? me.schoolId : null) as string | null;
+
+  const schoolQuery = useQuery({
+    queryKey: ["school", schoolId],
+    queryFn: () => SchoolsApi.getSchool(schoolId!),
+    enabled: Boolean(schoolId),
+  });
 
   const teacherForm = useForm<TeacherForm>({
     defaultValues: { name: "", email: "", password: "" },
@@ -54,7 +61,7 @@ export default function SchoolAdminTeachers() {
         {error ? <ErrorBox message={error} /> : null}
 
         <Info>
-          School ID: {schoolId ?? "(none)"}
+          School: {schoolQuery.data?.name ?? schoolId ?? "(none)"}
         </Info>
 
         <Info>{"Add teacher to your school"}</Info>

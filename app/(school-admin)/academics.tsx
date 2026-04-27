@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/src/features/auth/auth-store";
 import * as AcademicsApi from "@/src/api/academics";
+import * as SchoolsApi from "@/src/api/schools";
 import { ErrorBox, Field, Info, PrimaryButton } from "@/src/ui/basic";
 import { AppScreen } from "@/src/ui/app-screen";
 import { OptionSelector } from "@/src/ui/erp-widgets";
@@ -8,6 +10,12 @@ import { OptionSelector } from "@/src/ui/erp-widgets";
 export default function SchoolAdminAcademics() {
   const { me } = useAuth();
   const schoolId = (me && "schoolId" in me ? me.schoolId : null) as string | null;
+
+  const schoolQuery = useQuery({
+    queryKey: ["school", schoolId],
+    queryFn: () => SchoolsApi.getSchool(schoolId!),
+    enabled: Boolean(schoolId),
+  });
 
   const [yearName, setYearName] = useState("");
   const [yearMode, setYearMode] = useState<"2024-25" | "2025-26" | "2026-27" | "other">("2026-27");
@@ -47,7 +55,7 @@ export default function SchoolAdminAcademics() {
       {error ? <ErrorBox message={error} /> : null}
 
       <Info>
-        School ID: {schoolId ?? "(none)"}{"\n"}
+        School: {schoolQuery.data?.name ?? schoolId ?? "(none)"}{"\n"}
         Last result: {last ? JSON.stringify(last, null, 2) : "(none)"}
       </Info>
 

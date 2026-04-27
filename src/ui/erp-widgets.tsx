@@ -233,20 +233,29 @@ const styles = StyleSheet.create({
   optionLabel: { color: erp.colors.textSecondary, marginBottom: erp.space.xs, fontWeight: "600" },
   optionRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "flex-start",
     backgroundColor: erp.colors.surface,
     borderWidth: 1,
     borderColor: erp.colors.border,
-    borderRadius: erp.radii.full,
-    overflow: "hidden",
+    borderRadius: erp.radii.lg,
+    padding: erp.space.xs,
   },
   optionItem: {
-    flex: 1,
+    minWidth: 140,
     paddingVertical: erp.space.sm,
+    paddingHorizontal: erp.space.md,
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: erp.radii.full,
+    borderWidth: 1,
+    borderColor: erp.colors.border,
+    marginRight: erp.space.sm,
+    marginBottom: erp.space.sm,
   },
   optionItemSelected: {
     backgroundColor: erp.colors.accent,
+    borderColor: erp.colors.accent,
   },
   optionItemUnselected: {
     backgroundColor: erp.colors.surface2,
@@ -254,6 +263,7 @@ const styles = StyleSheet.create({
   optionText: {
     color: erp.colors.textPrimary,
     fontWeight: "600",
+    textAlign: "center",
   },
   optionTextSelected: {
     color: erp.colors.bg,

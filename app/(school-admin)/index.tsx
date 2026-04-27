@@ -1,14 +1,26 @@
 import { Text, ScrollView } from "react-native";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/src/features/auth/auth-store";
+import * as SchoolsApi from "@/src/api/schools";
 import { AppScreen } from "@/src/ui/app-screen";
 import { StatCard } from "@/components/ui/stat-card";
 import { LogoutButton } from "@/src/ui/logout-button";
 
 export default function SchoolAdminDashboard() {
+  const { me } = useAuth();
+  const schoolId = (me && "schoolId" in me ? me.schoolId : null) as string | null;
+
+  const schoolQuery = useQuery({
+    queryKey: ["school", schoolId],
+    queryFn: () => SchoolsApi.getSchool(schoolId!),
+    enabled: Boolean(schoolId),
+  });
+
   return (
     <AppScreen title="School Dashboard">
       <ScrollView contentContainerStyle={{ padding: 20 }}>
         <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 20 }}>
-          Welcome, School Administrator
+          Welcome to {schoolQuery.data?.name ?? "your school"}
         </Text>
 
         <StatCard

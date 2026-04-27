@@ -8,10 +8,38 @@ export type School = {
   createdBy?: string;
   createdAt: string;
   updatedAt: string;
+  admin?: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
 };
 
-export async function listSchools() {
-  const res = await api.get<School[]>("/schools");
+export type PaginatedSchools = {
+  schools: School[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export async function listSchools(options: { page?: number; limit?: number; search?: string } = {}) {
+  const params = new URLSearchParams();
+  if (options.page) params.append('page', options.page.toString());
+  if (options.limit) params.append('limit', options.limit.toString());
+  if (options.search) params.append('search', options.search);
+
+  const res = await api.get<PaginatedSchools>(`/schools?${params.toString()}`);
+  return res.data;
+}
+
+export async function countSchools() {
+  const res = await api.get<number>("/schools/count");
+  return res.data;
+}
+
+export async function getSchool(schoolId: string) {
+  const res = await api.get<School>(`/schools/${schoolId}`);
   return res.data;
 }
 
