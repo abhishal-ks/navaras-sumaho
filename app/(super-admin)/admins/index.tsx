@@ -59,13 +59,13 @@ export default function AdminsIndex() {
         {/* Navigation Tabs */}
         <View style={{ flexDirection: "row", marginBottom: erp.space.lg, gap: erp.space.md }}>
           <PrimaryButton
-            title="Schools"
-            onPress={() => router.push("/(super-admin)/admins/schools" as Href)}
+            title="School Admins"
+            onPress={() => router.push("/(super-admin)/admins/school-admins" as Href)}
             style={{ flex: 1 }}
           />
           <PrimaryButton
-            title="Administrators"
-            onPress={() => router.push("/(super-admin)/admins/administrators" as Href)}
+            title="Assign Admins"
+            onPress={() => router.push("/(super-admin)/admins/assign-admins" as Href)}
             style={{ flex: 1 }}
           />
         </View>

@@ -1,23 +1,20 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, ScrollView, View, Text, TextInput, TouchableOpacity } from "react-native";
-import { Href, router } from "expo-router";
+import { ScrollView, View, Text, TextInput, TouchableOpacity } from "react-native";
+import { router } from "expo-router";
 import * as UsersApi from "@/src/api/users";
 import * as SchoolsApi from "@/src/api/schools";
-import { ErrorBox, SectionTitle, SuccessNotification, PrimaryButton } from "@/src/ui/basic";
-import { OptionSelector, ErpCard } from "@/src/ui/erp-widgets";
+import { ErrorBox, PrimaryButton } from "@/src/ui/basic";
+import { ErpCard } from "@/src/ui/erp-widgets";
 import { AppScreen } from "@/src/ui/app-screen";
 import { Ionicons } from "@expo/vector-icons";
 import { erp } from "@/src/theme/erp";
 
 export default function AdminsSchools() {
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [expandedSchoolId, setExpandedSchoolId] = useState<string | null>(null);
-  const [selectedAdminForSchool, setSelectedAdminForSchool] = useState("");
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [expandedSchoolId, setExpandedSchoolId] = useState<string | null>(null);
 
   const schoolsQuery = useQuery({
     queryKey: ["schools", page, search],
@@ -29,60 +26,11 @@ export default function AdminsSchools() {
     queryFn: () => UsersApi.listUsersByRole("SCHOOL_ADMIN", { page: 1, limit: 100 }),
   });
 
-  const assignAdminToSchool = async (schoolId: string, adminId: string) => {
-    if (!schoolId || !adminId) {
-      setError("Please select an administrator first");
-      return;
-    }
-    setError(null);
-    setSuccess(null);
-    setLoading(true);
-    try {
-      const response = await SchoolsApi.assignSchoolAdmin(schoolId, adminId);
-      
-      let successMessage = "Admin assigned to school successfully!";
-      if (response.isUpdate && response.previousSchool) {
-        successMessage = "Admin reassigned to a new school successfully.";
-      } else if (!response.isUpdate && response.message?.includes("already assigned")) {
-        successMessage = "Admin is already assigned to this school.";
-      }
-      
-      setSuccess(successMessage);
-      setSelectedAdminForSchool("");
-      setExpandedSchoolId(null);
-      schoolsQuery.refetch();
-      adminsQuery.refetch();
-    } catch (e: any) {
-      const errorMsg = e?.message ?? "Failed to assign admin to school";
-      setError(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Removed assignAdminToSchool as it is no longer needed
+  // Assignment logic is now in administrators.tsx
 
-  const confirmAssignAdmin = (school: any) => {
-    if (!selectedAdminForSchool) {
-      setError("Please select an administrator first");
-      return;
-    }
-
-    Alert.alert(
-      "Confirm assignment",
-      `Assign selected admin to ${school.name}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Confirm",
-          onPress: () => assignAdminToSchool(school._id, selectedAdminForSchool),
-        },
-      ],
-    );
-  };
-
-  const adminOptions = adminsQuery.data?.users.map((admin) => ({
-    label: `${admin.name} (${admin.email})`,
-    value: admin._id,
-  })) || [];
+  // Removed confirmAssignAdmin and adminOptions as they are no longer needed
+  // Assignment logic is now in administrators.tsx
 
   const handleSearch = (text: string) => {
     setSearch(text);
@@ -93,7 +41,6 @@ export default function AdminsSchools() {
     <AppScreen title="All Schools">
       <ScrollView contentContainerStyle={{ paddingHorizontal: erp.space.lg, paddingBottom: 100 }}>
         {error ? <ErrorBox message={error} /> : null}
-        {success ? <SuccessNotification>{success}</SuccessNotification> : null}
 
         <View style={{ marginBottom: erp.space.md }}>
           <PrimaryButton
@@ -102,7 +49,18 @@ export default function AdminsSchools() {
           />
         </View>
 
-        <SectionTitle>All Schools ({schoolsQuery.data?.total || 0})</SectionTitle>
+        <View style={{ marginBottom: erp.space.lg }}>
+          <PrimaryButton
+            title="Assign Admin to Schools"
+            onPress={() => router.push("/(super-admin)/admins/administrators")}
+          />
+        </View>
+
+        <View style={{ marginBottom: erp.space.md }}>
+          <Text style={{ fontSize: 18, fontWeight: "700", color: erp.colors.textPrimary }}>
+            All Schools ({schoolsQuery.data?.total || 0})
+          </Text>
+        </View>
         <TextInput
           placeholder="Search schools by name or address..."
           value={search}
@@ -120,7 +78,43 @@ export default function AdminsSchools() {
           placeholderTextColor={erp.colors.textMuted}
         />
 
-        {schoolsQuery.data?.schools.map((school) => {
+        <View style={{ marginBottom: erp.space.md }}>
+          <Text style={{ fontSize: 18, fontWeight: "700", color: erp.colors.textPrimary }}>
+            School Administrators ({adminsQuery.data?.total || 0})
+          </Text>
+        </View>
+        {adminsQuery.isError && (
+          <ErrorBox message={(adminsQuery.error as any)?.message ?? "Failed to load administrators"} />
+        )}
+        {adminsQuery.data?.users.map((admin) => (
+          <ErpCard key={admin._id} style={{ marginBottom: erp.space.md }}>
+            <View style={{ paddingVertical: erp.space.sm }}>
+              <View style={{ marginBottom: erp.space.sm }}>
+                <Text style={{ fontSize: 16, fontWeight: "700", color: erp.colors.textPrimary }}>
+                  {admin.name}
+                </Text>
+                <Text style={{ color: erp.colors.textSecondary, marginTop: erp.space.xs, fontSize: 13 }}>
+                  📧 {admin.email}
+                </Text>
+              </View>
+              {admin.school ? (
+                <View style={{ backgroundColor: erp.colors.accentMuted, padding: erp.space.sm, borderRadius: erp.radii.md }}>
+                  <Text style={{ color: erp.colors.accent, fontWeight: "600", fontSize: 12 }}>
+                    🏫 Assigned to: {admin.school.name}
+                  </Text>
+                </View>
+              ) : (
+                <View style={{ backgroundColor: erp.colors.surface, borderWidth: 1, borderColor: erp.colors.border, padding: erp.space.sm, borderRadius: erp.radii.md }}>
+                  <Text style={{ color: erp.colors.textSecondary, fontWeight: "500", fontSize: 12 }}>
+                    ○ Not assigned to any school
+                  </Text>
+                </View>
+              )}
+            </View>
+          </ErpCard>
+        ))}
+
+        {schoolsQuery.data?.schools.map((school: any) => {
           const isExpanded = expandedSchoolId === school._id;
           return (
             <ErpCard key={school._id} style={{ marginBottom: erp.space.md }}>
@@ -167,27 +161,7 @@ export default function AdminsSchools() {
                 </View>
               )}
 
-              {isExpanded && (
-                <View style={{ marginTop: erp.space.sm, borderTopWidth: 1, borderTopColor: erp.colors.border, paddingTop: erp.space.md }}>
-                  <Text style={{ color: erp.colors.textSecondary, marginBottom: erp.space.md, fontSize: 13 }}>
-                    Tap below to assign or change the admin for this school.
-                  </Text>
-                  <View style={{ marginBottom: erp.space.lg }}>
-                    <OptionSelector
-                      label="Choose school administrator"
-                      value={selectedAdminForSchool}
-                      onSelect={setSelectedAdminForSchool}
-                      options={adminOptions}
-                    />
-                  </View>
-                  <PrimaryButton
-                    title={school.admin ? "Change Admin" : "Assign Admin"}
-                    onPress={() => confirmAssignAdmin(school)}
-                    loading={loading}
-                    disabled={!selectedAdminForSchool}
-                  />
-                </View>
-              )}
+              {/* Assignment moved to administrators.tsx */}
             </ErpCard>
           );
         })}
