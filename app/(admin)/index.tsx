@@ -13,7 +13,7 @@ export default function Admin() {
 
   useEffect(() => {
     if (me?.role === "SUPER_ADMIN") {
-      SchoolsApi.listSchools().then(setSchools).catch(console.error);
+      SchoolsApi.listSchools().then((result) => setSchools(result.schools)).catch(console.error);
     }
   }, [me]);
 

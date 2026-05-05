@@ -31,6 +31,7 @@ export default function AdminLayout() {
         options={{
           title: "Academics",
           tabBarIcon: tabIcon("school-outline"),
+          href: "/(admin)/academics",
         }}
       />
       <Tabs.Screen
@@ -38,6 +39,7 @@ export default function AdminLayout() {
         options={{
           title: "Settings",
           tabBarIcon: tabIcon("settings-outline"),
+          href: "/(admin)/schools",
         }}
       />
       <Tabs.Screen
